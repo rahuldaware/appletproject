@@ -56,3 +56,4 @@ FLUSH PRIVILEGES;
 mysql -u rdaware -p
 On next prompt, enter password
 ```
+6. Create table
