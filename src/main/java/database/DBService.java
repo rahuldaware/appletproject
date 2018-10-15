@@ -32,16 +32,30 @@ public class DBService {
         return true;
     }
 
+    public Boolean isUserAuthorized(String username, String password) {
+        String query = "SELECT password FROM users" + " WHERE  username = '" + username + "'";
+        ResultSet resultSet = null;
+        try {
+            resultSet = statement.executeQuery(query);
+            if(resultSet.next()) {
+                String pass = resultSet.getString("password");
+                if(pass.equals(password)) {
+                    return true;
+                }
+            }
+            return false;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
     public String insertNewUser(String username, String password) {
         String query = "INSERT INTO users " + "VALUES ('" + username + "', '" + password + "', '" + new java.sql.Timestamp(new java.util.Date().getTime())+"')";
-        if(isUserExist(username)) {
-            return "Username already exists";
-        } else {
-            try {
-                statement.executeUpdate(query);
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
+        try {
+            statement.executeUpdate(query);
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
         return "Account successfully created";
     }

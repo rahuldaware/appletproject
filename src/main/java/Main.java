@@ -1,4 +1,5 @@
 import database.DBService;
+import validation.UsernameValidation;
 
 import javax.swing.*;
 import java.awt.*;
@@ -13,6 +14,7 @@ public class Main extends JApplet{
     private JPanel homePanel;
     private JPanel newUserPanel;
     private JPanel loginUserPanel;
+    private JPanel bookingPanel;
 
     private JButton backButton;
     private JButton newUserButton;
@@ -95,16 +97,56 @@ public class Main extends JApplet{
         return textArea;
     }
 
+    public String newUserValidation(JTextField username, JPasswordField password, JPasswordField confirmPassword) {
+        if(username.getText().length() < 6) {
+            return "Username should be atleast 6 characters";
+        }
+        if(!password.getText().equals(confirmPassword.getText())) {
+            return "Passwords should match";
+        }
+        if(dbService.isUserExist(username.getText())) {
+            return "Username already exists. Please select another username";
+        }
+        else {
+            return null;
+        }
+    }
+
+    public String loginUserValidation(JTextField username, JPasswordField password) {
+        if(username.getText().length() < 6) {
+            return "Username should be atleast 6 characters";
+        }
+        if(!dbService.isUserExist(username.getText())) {
+            return "Username does not exist";
+        }
+        if(!dbService.isUserAuthorized(username.getText(), password.getText())) {
+            return "Incorrect username and/or password";
+        }
+        return null;
+    }
+
+    public void createBookingPanel() {
+        bookingPanel = new JPanel();
+        bookingPanel.add(backButton);
+
+    }
+
     public void createNewUserPanel() {
         newUserPanel = new JPanel();
         newUserPanel.add(backButton);
         newUserPanel.add(newLine(), BorderLayout.CENTER);
-        JLabel userNameLabel = new JLabel("Username: ", JLabel.RIGHT);
-        JLabel passwordLabel = new JLabel("Password: ", JLabel.RIGHT);
+        JLabel userNameLabel = new JLabel("Username: ", JLabel.CENTER);
+        JLabel passwordLabel = new JLabel("Password: ", JLabel.CENTER);
+        JLabel confirmPasswordLabel = new JLabel("Confirm Password: ", JLabel.CENTER);
+        JLabel message = new JLabel("", JLabel.CENTER);
+        message.setForeground(Color.RED);
 
         JTextField username = new JTextField(10);
+        username.setInputVerifier(new UsernameValidation());
         JPasswordField password = new JPasswordField(10);
         password.setEchoChar('*');
+        JPasswordField confirmPassword = new JPasswordField(10);
+        confirmPassword.setEchoChar('*');
 
         JButton signInButton = new JButton("Sign In");
         signInButton.setBackground(Color.GREEN);
@@ -112,10 +154,25 @@ public class Main extends JApplet{
         signInButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                //TODO: Remove this log later
+                String validation = newUserValidation(username, password, confirmPassword);
+                if(validation != null) {
+                    message.setText(validation);
+                    createNewUserPanel();
+                    newUserPanel.add(message);
+                    mainFrame.setContentPane(newUserPanel);
+                    mainFrame.invalidate();
+                    mainFrame.validate();
+                    return;
+                }
                 System.out.println("Username: " + username.getText() + " Password: " + password.getText());
                 String result = dbService.insertNewUser(username.getText().trim(), password.getText().trim());
-                System.out.println(result);
+                message.setText(result);
+                createNewUserPanel();
+                loginUserPanel.add(newLine(), BorderLayout.CENTER);
+                newUserPanel.add(message);
+                mainFrame.setContentPane(newUserPanel);
+                mainFrame.invalidate();
+                mainFrame.validate();
             }
         });
 
@@ -123,6 +180,8 @@ public class Main extends JApplet{
         newUserPanel.add(username);
         newUserPanel.add(passwordLabel);
         newUserPanel.add(password);
+        newUserPanel.add(confirmPasswordLabel);
+        newUserPanel.add(confirmPassword);
         newUserPanel.add(signInButton);
     }
 
@@ -132,7 +191,8 @@ public class Main extends JApplet{
         loginUserPanel.add(newLine(), BorderLayout.CENTER);
         JLabel userNameLabel = new JLabel("User name: ", JLabel.RIGHT);
         JLabel passwordLabel = new JLabel("Password: ", JLabel.RIGHT);
-
+        JLabel message = new JLabel("", JLabel.CENTER);
+        message.setForeground(Color.RED);
         JTextField username = new JTextField(10);
         JPasswordField password = new JPasswordField(10);
         password.setEchoChar('*');
@@ -145,7 +205,25 @@ public class Main extends JApplet{
             public void actionPerformed(ActionEvent e) {
                 //TODO: Remove this log later!
                 System.out.println("Username: " + username.getText() + " Password: " + password.getText());
-
+                String validation = loginUserValidation(username, password);
+                System.out.println(validation);
+                if(validation != null) {
+                    message.setText(validation);
+                    createLoginUserPanel();
+                    loginUserPanel.add(newLine(), BorderLayout.CENTER);
+                    loginUserPanel.add(message);
+                    mainFrame.setContentPane(loginUserPanel);
+                    mainFrame.invalidate();
+                    mainFrame.validate();
+                    return;
+                } else {
+                    message.setText("Login Successful");
+                    createBookingPanel();
+                    bookingPanel.add(message);
+                    mainFrame.setContentPane(bookingPanel);
+                    mainFrame.invalidate();
+                    mainFrame.validate();
+                }
             }
         });
 

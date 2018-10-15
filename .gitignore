@@ -1,3 +1,6 @@
 .idea/
 target/
 appletproject.iml
+.classpath
+.project
+.settings/
