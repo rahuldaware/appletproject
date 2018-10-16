@@ -5,7 +5,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.sql.SQLException;
+import java.util.ArrayList;
 
 public class Main extends JApplet{
 
@@ -14,7 +14,10 @@ public class Main extends JApplet{
     private JPanel homePanel;
     private JPanel newUserPanel;
     private JPanel loginUserPanel;
-    private JPanel bookingPanel;
+    private JPanel activityPanel;
+    private JPanel bookTicketPanel;
+    private JPanel cancelTicketPanel;
+    private JPanel viewHistoryPanel;
 
     private JButton backButton;
     private JButton newUserButton;
@@ -24,6 +27,10 @@ public class Main extends JApplet{
     private JTextField username;
     private JPasswordField password;
 
+    private String[] airports =
+            {"Mumbai", "Delhi", "Hyderabad", "Kolkata", "Chennai", "Bengaluru", "Ahmedabad", "Pune", "Jaipur", "Lucknow"};
+
+    private String[] passengers = {"1","2","3","4","5","6"};
     public Main() {
         initFrame();
     }
@@ -125,10 +132,139 @@ public class Main extends JApplet{
         return null;
     }
 
-    public void createBookingPanel() {
-        bookingPanel = new JPanel();
-        bookingPanel.add(backButton);
+    public void createBookTicketPanel() {
+        bookTicketPanel = new JPanel();
+        bookTicketPanel.setLayout(new FlowLayout());
+        JLabel fromLabel = new JLabel("From: ",JLabel.LEFT);
+        JLabel toLabel = new JLabel("To: ",JLabel.LEFT);
 
+        bookTicketPanel.add(fromLabel);
+
+        DefaultComboBoxModel sourceList = new DefaultComboBoxModel();
+        for(String airport: airports) {
+            sourceList.addElement(airport);
+        }
+        JComboBox sourceListComboBox = new JComboBox(sourceList);
+        sourceListComboBox.setSelectedIndex(0);
+        JScrollPane sourceListScrollPane = new JScrollPane(sourceListComboBox);
+        bookTicketPanel.add(sourceListScrollPane);
+
+        bookTicketPanel.add(toLabel);
+
+        DefaultComboBoxModel destinationList = new DefaultComboBoxModel();
+        for(String airport: airports) {
+            destinationList.addElement(airport);
+        }
+        JComboBox destinationListComboBox = new JComboBox(destinationList);
+        destinationListComboBox.setSelectedIndex(0);
+        JScrollPane destinationListScrollPane = new JScrollPane(destinationListComboBox);
+        bookTicketPanel.add(destinationListScrollPane);
+
+        bookTicketPanel.add(newLine(), BorderLayout.CENTER);
+
+
+        JLabel departDateLabel = new JLabel("Depart On (DD/MM/YYYY):", JLabel.LEFT);
+
+        JTextField departDateField = new JTextField(6);
+        departDateField.setBackground(Color.LIGHT_GRAY);
+
+        JLabel returnDateLabel = new JLabel("Return On (DD/MM/YYYY):", JLabel.LEFT);
+
+        JTextField returnDateField = new JTextField(6);
+        returnDateField.setBackground(Color.LIGHT_GRAY);
+
+        bookTicketPanel.add(departDateLabel);
+        bookTicketPanel.add(departDateField);
+        bookTicketPanel.add(returnDateLabel);
+        bookTicketPanel.add(returnDateField);
+
+        bookTicketPanel.add(newLine(), BorderLayout.CENTER);
+
+        JLabel passengerLabel = new JLabel("Passengers: ");
+        bookTicketPanel.add(passengerLabel);
+
+        DefaultComboBoxModel passengerList = new DefaultComboBoxModel();
+        for(String passenger: passengers) {
+            passengerList.addElement(passenger);
+        }
+        JComboBox passengerListComboBox = new JComboBox(passengerList);
+        passengerListComboBox.setSelectedIndex(0);
+        JScrollPane passengerListScrollPane = new JScrollPane(passengerListComboBox);
+        bookTicketPanel.add(passengerListScrollPane);
+
+        JRadioButton businessRadioButton = new JRadioButton("Business Class");
+        JRadioButton economyRadioButton = new JRadioButton("Economy Class");
+        businessRadioButton.setBounds(75,50,100,30);
+        economyRadioButton.setBounds(75,100,100,30);
+        ButtonGroup bg=new ButtonGroup();
+        bg.add(businessRadioButton);
+        bg.add(economyRadioButton);
+        Box verticalBox = Box.createVerticalBox();
+        verticalBox.add(businessRadioButton);
+        verticalBox.add(economyRadioButton);
+        bookTicketPanel.add(verticalBox);
+
+        bookTicketPanel.add(newLine());
+        bookTicketPanel.add(newLine());
+
+        JButton submitButton = new JButton("Submit");
+        submitButton.setBackground(Color.GREEN);
+        submitButton.setHorizontalAlignment(SwingConstants.CENTER);
+        bookTicketPanel.add(submitButton);
+
+        mainFrame.add(bookTicketPanel);
+        mainFrame.setVisible(true);
+    }
+
+    public void createActivityPanel() {
+        activityPanel = new JPanel();
+        activityPanel.add(backButton);
+
+        JRadioButton bookTicket = new JRadioButton("Book Ticket");
+        JRadioButton cancelTicket = new JRadioButton("Cancel Ticket");
+        JRadioButton viewHistory = new JRadioButton("View History");
+        JButton submitButton = new JButton("Submit");
+        submitButton.setBackground(Color.GREEN);
+
+        bookTicket.setBounds(75,50,100,30);
+        cancelTicket.setBounds(75,100,100,30);
+        viewHistory.setBounds(75,150,100,30);
+
+        ButtonGroup bg=new ButtonGroup();
+        bg.add(bookTicket);
+        bg.add(cancelTicket);
+        bg.add(viewHistory);
+
+        activityPanel.add(bookTicket);
+        activityPanel.add(cancelTicket);
+        activityPanel.add(viewHistory);
+        activityPanel.add(submitButton);
+
+        submitButton.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if(bookTicket.isSelected()) {
+                    System.out.println("Book Ticket Selected");
+                    createBookTicketPanel();
+                    mainFrame.setContentPane(bookTicketPanel);
+                    mainFrame.invalidate();
+                    mainFrame.validate();
+                    return;
+                }
+                else if(cancelTicket.isSelected()) {
+                    System.out.println("Cancel Ticket Selected");
+                }
+                else if(viewHistory.isSelected()){
+                    System.out.println("View History Selected");
+                } else {
+                    createActivityPanel();
+                    mainFrame.setContentPane(activityPanel);
+                    mainFrame.invalidate();
+                    mainFrame.validate();
+                }
+            }
+        });
     }
 
     public void createNewUserPanel() {
@@ -168,7 +304,7 @@ public class Main extends JApplet{
                 String result = dbService.insertNewUser(username.getText().trim(), password.getText().trim());
                 message.setText(result);
                 createNewUserPanel();
-                loginUserPanel.add(newLine(), BorderLayout.CENTER);
+                newUserPanel.add(newLine(), BorderLayout.CENTER);
                 newUserPanel.add(message);
                 mainFrame.setContentPane(newUserPanel);
                 mainFrame.invalidate();
@@ -217,10 +353,8 @@ public class Main extends JApplet{
                     mainFrame.validate();
                     return;
                 } else {
-                    message.setText("Login Successful");
-                    createBookingPanel();
-                    bookingPanel.add(message);
-                    mainFrame.setContentPane(bookingPanel);
+                    createActivityPanel();
+                    mainFrame.setContentPane(activityPanel);
                     mainFrame.invalidate();
                     mainFrame.validate();
                 }
