@@ -8,6 +8,7 @@ import java.awt.event.ActionListener;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import net.miginfocom.swing.MigLayout;
 
 public class Main extends JApplet{
 
@@ -128,9 +129,9 @@ public class Main extends JApplet{
 
     public void createBookTicketPanel() {
         bookTicketPanel = new JPanel();
-        bookTicketPanel.setLayout(new FlowLayout());
-        JLabel fromLabel = new JLabel("From: ",JLabel.LEFT);
-        JLabel toLabel = new JLabel("To: ",JLabel.LEFT);
+        bookTicketPanel.setLayout(new MigLayout());
+        JLabel fromLabel = new JLabel("From: ");
+        JLabel toLabel = new JLabel("To: ");
 
         bookTicketPanel.add(fromLabel);
 
@@ -141,7 +142,7 @@ public class Main extends JApplet{
         JComboBox sourceListComboBox = new JComboBox(sourceList);
         sourceListComboBox.setSelectedIndex(0);
         JScrollPane sourceListScrollPane = new JScrollPane(sourceListComboBox);
-        bookTicketPanel.add(sourceListScrollPane);
+        bookTicketPanel.add(sourceListScrollPane, "wrap");
 
         bookTicketPanel.add(toLabel);
 
@@ -170,7 +171,7 @@ public class Main extends JApplet{
         bookTicketPanel.add(departDateLabel);
         bookTicketPanel.add(departDateField);
         bookTicketPanel.add(returnDateLabel);
-        bookTicketPanel.add(returnDateField);
+        bookTicketPanel.add(returnDateField, "wrap");
 
         bookTicketPanel.add(spacer, "span, grow");
 
@@ -207,6 +208,15 @@ public class Main extends JApplet{
         JButton submitButton = new JButton("Submit");
         submitButton.setBackground(Color.GREEN);
         submitButton.setHorizontalAlignment(SwingConstants.CENTER);
+
+        // Delete Later
+        destinationListComboBox.setSelectedIndex(2);
+        departDateField.setText("20/10/2018");
+        returnDateField.setText("22/10/2018");
+        passengerListComboBox.setSelectedIndex(3);
+        businessRadioButton.setSelected(true);
+        //Delete until here
+
         submitButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -251,13 +261,13 @@ public class Main extends JApplet{
 
     public void createBuyTicketPanel(String departDate, String returnDate, String source, String destination, int passengerCount) {
         buyTicketPanel = new JPanel();
-        buyTicketPanel.add(backButton);
+        buyTicketPanel.setLayout(new MigLayout());
+        buyTicketPanel.add(backButton, "wrap");
 
         JLabel departDateLabel = new JLabel(departDate);
         JLabel returnDateLabel = new JLabel(returnDate);
         JLabel sourceLabel = new JLabel(source);
         JLabel destinationLabel = new JLabel(destination);
-        JLabel passengerCountLabel = new JLabel(String.valueOf(passengerCount));
 
         ArrayList<JTextField> passengerFirstName = new ArrayList<>();
         ArrayList<JTextField> passengerLastName = new ArrayList<>();
@@ -276,29 +286,47 @@ public class Main extends JApplet{
             passengerGender.add(gender);
         }
 
-        buyTicketPanel.add(departDateLabel);
-        buyTicketPanel.add(returnDateLabel);
-        buyTicketPanel.add(sourceLabel);
-        buyTicketPanel.add(destinationLabel);
-        buyTicketPanel.add(passengerCountLabel);
-        buyTicketPanel.add(spacer, "span, grow");
-        buyTicketPanel.add(new JLabel("Passenger Details"));
-        buyTicketPanel.add(spacer, "span, grow");
+        buyTicketPanel.add(new JLabel("Depart On: " + departDateLabel.getText()));
+        buyTicketPanel.add(new JLabel("Return On: " + returnDateLabel.getText()),"wrap");
+        buyTicketPanel.add(new JLabel("From: " + sourceLabel.getText()));
+        buyTicketPanel.add(new JLabel("To: " + destinationLabel.getText()), "wrap");
+        buyTicketPanel.add(new JLabel("Passenger Details"), "wrap");
         for(int i=0; i<passengerCount;i++) {
-            buyTicketPanel.add(new JLabel("First Name: " + i + ":"));
+            buyTicketPanel.add(new JLabel("First Name: ", JLabel.LEFT));
             buyTicketPanel.add(passengerFirstName.get(i));
 
-            buyTicketPanel.add(new JLabel("Last Name: " + i + ":"));
+            buyTicketPanel.add(new JLabel("Last Name: "));
             buyTicketPanel.add(passengerLastName.get(i));
 
-            buyTicketPanel.add(new JLabel("Age: " + i + ":"));
+            buyTicketPanel.add(new JLabel("Age: "));
             buyTicketPanel.add(passengerAge.get(i));
 
-            buyTicketPanel.add(new JLabel("Gender(M/F): " + i + ":"));
-            buyTicketPanel.add(passengerGender.get(i));
+            buyTicketPanel.add(new JLabel("Gender(M/F): "));
+            buyTicketPanel.add(passengerGender.get(i), "wrap");
 
-            buyTicketPanel.add(spacer, "span, grow");
+            buyTicketPanel.add(spacer, "wrap");
         }
+
+        JLabel paymentDetails = new JLabel("Payment Details");
+
+        JLabel creditCardLabel = new JLabel("Credit Card No (16 digits): ");
+        JTextField creditCardNo = new JTextField(10);
+        JLabel creditCardExpiryLabel = new JLabel("Expiry Date (MM/YYYY): ");
+        JTextField creditCardExpiry = new JTextField(4);
+        JLabel creditCardCvcLabel = new JLabel("CVC No: ");
+        JTextField creditCardCvc = new JTextField(2);
+
+
+        buyTicketPanel.add(paymentDetails, "wrap");
+        buyTicketPanel.add(creditCardLabel);
+        buyTicketPanel.add(creditCardNo, "wrap");
+        buyTicketPanel.add(creditCardExpiryLabel);
+        buyTicketPanel.add(creditCardExpiry);
+        buyTicketPanel.add(creditCardCvcLabel);
+        buyTicketPanel.add(creditCardCvc, "wrap");
+
+        JButton submitButton = new JButton("Buy Tickets");
+        buyTicketPanel.add(submitButton);
     }
 
     public String dateValidator(String departDate, String returnDate) {
@@ -473,7 +501,7 @@ public class Main extends JApplet{
     public void initFrame() {
         mainFrame = new JFrame("Rucha Project");
         mainFrame.setVisible(true);
-        mainFrame.setSize(600,400);
+        mainFrame.setSize(800,600);
         mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         initPanelsAndButtons();
         mainFrame.add(bookTicketPanel);
