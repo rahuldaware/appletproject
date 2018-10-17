@@ -11,6 +11,7 @@ import java.util.ArrayList;
 
 public class Main extends JApplet{
 
+    private JLabel spacer = new JLabel(" ");
     private JFrame mainFrame;
 
     private JPanel homePanel;
@@ -97,15 +98,6 @@ public class Main extends JApplet{
         homePanel.add(loginUserButton);
     }
 
-    public JTextArea newLine() {
-        JTextArea textArea = new JTextArea();
-        textArea.setEditable(false);
-        textArea.setLineWrap(true);
-        textArea.setOpaque(false);
-        textArea.setBorder(BorderFactory.createEmptyBorder(10,300,10,300));
-        return textArea;
-    }
-
     public String newUserValidation(JTextField username, JPasswordField password, JPasswordField confirmPassword) {
         if(username.getText().length() < 6) {
             return "Username should be atleast 6 characters";
@@ -160,19 +152,19 @@ public class Main extends JApplet{
         JComboBox destinationListComboBox = new JComboBox(destinationList);
         destinationListComboBox.setSelectedIndex(0);
         JScrollPane destinationListScrollPane = new JScrollPane(destinationListComboBox);
-        bookTicketPanel.add(destinationListScrollPane);
+        bookTicketPanel.add(destinationListScrollPane, "wrap");
 
-        bookTicketPanel.add(newLine(), BorderLayout.CENTER);
+        bookTicketPanel.add(spacer, "span, grow");
 
 
         JLabel departDateLabel = new JLabel("Depart On (DD/MM/YYYY):", JLabel.LEFT);
 
-        JTextField departDateField = new JTextField(6);
+        JTextField departDateField = new JTextField(7);
         departDateField.setBackground(Color.LIGHT_GRAY);
 
         JLabel returnDateLabel = new JLabel("Return On (DD/MM/YYYY):", JLabel.LEFT);
 
-        JTextField returnDateField = new JTextField(6);
+        JTextField returnDateField = new JTextField(7);
         returnDateField.setBackground(Color.LIGHT_GRAY);
 
         bookTicketPanel.add(departDateLabel);
@@ -180,7 +172,7 @@ public class Main extends JApplet{
         bookTicketPanel.add(returnDateLabel);
         bookTicketPanel.add(returnDateField);
 
-        bookTicketPanel.add(newLine(), BorderLayout.CENTER);
+        bookTicketPanel.add(spacer, "span, grow");
 
         JLabel passengerLabel = new JLabel("Passengers: ");
         bookTicketPanel.add(passengerLabel);
@@ -206,8 +198,8 @@ public class Main extends JApplet{
         verticalBox.add(economyRadioButton);
         bookTicketPanel.add(verticalBox);
 
-        bookTicketPanel.add(newLine());
-        bookTicketPanel.add(newLine());
+        bookTicketPanel.add(spacer, "span, grow");
+        bookTicketPanel.add(spacer, "span, grow");
 
         JTextField message = new JTextField("");
         message.setForeground(Color.RED);
@@ -267,11 +259,46 @@ public class Main extends JApplet{
         JLabel destinationLabel = new JLabel(destination);
         JLabel passengerCountLabel = new JLabel(String.valueOf(passengerCount));
 
+        ArrayList<JTextField> passengerFirstName = new ArrayList<>();
+        ArrayList<JTextField> passengerLastName = new ArrayList<>();
+        ArrayList<JTextField> passengerAge = new ArrayList<>();
+        ArrayList<JTextField> passengerGender = new ArrayList<>();
+
+        for(int i = 0; i<passengerCount;i++) {
+            JTextField firstName = new JTextField(10);
+            JTextField lastName = new JTextField(10);
+            JTextField age = new JTextField(2);
+            JTextField gender = new JTextField(2);
+
+            passengerFirstName.add(firstName);
+            passengerLastName.add(lastName);
+            passengerAge.add(age);
+            passengerGender.add(gender);
+        }
+
         buyTicketPanel.add(departDateLabel);
         buyTicketPanel.add(returnDateLabel);
         buyTicketPanel.add(sourceLabel);
         buyTicketPanel.add(destinationLabel);
         buyTicketPanel.add(passengerCountLabel);
+        buyTicketPanel.add(spacer, "span, grow");
+        buyTicketPanel.add(new JLabel("Passenger Details"));
+        buyTicketPanel.add(spacer, "span, grow");
+        for(int i=0; i<passengerCount;i++) {
+            buyTicketPanel.add(new JLabel("First Name: " + i + ":"));
+            buyTicketPanel.add(passengerFirstName.get(i));
+
+            buyTicketPanel.add(new JLabel("Last Name: " + i + ":"));
+            buyTicketPanel.add(passengerLastName.get(i));
+
+            buyTicketPanel.add(new JLabel("Age: " + i + ":"));
+            buyTicketPanel.add(passengerAge.get(i));
+
+            buyTicketPanel.add(new JLabel("Gender(M/F): " + i + ":"));
+            buyTicketPanel.add(passengerGender.get(i));
+
+            buyTicketPanel.add(spacer, "span, grow");
+        }
     }
 
     public String dateValidator(String departDate, String returnDate) {
@@ -345,7 +372,7 @@ public class Main extends JApplet{
     public void createNewUserPanel() {
         newUserPanel = new JPanel();
         newUserPanel.add(backButton);
-        newUserPanel.add(newLine(), BorderLayout.CENTER);
+        newUserPanel.add(spacer, "span, grow");
         JLabel userNameLabel = new JLabel("Username: ", JLabel.CENTER);
         JLabel passwordLabel = new JLabel("Password: ", JLabel.CENTER);
         JLabel confirmPasswordLabel = new JLabel("Confirm Password: ", JLabel.CENTER);
@@ -379,7 +406,7 @@ public class Main extends JApplet{
                 String result = dbService.insertNewUser(username.getText().trim(), password.getText().trim());
                 message.setText(result);
                 createNewUserPanel();
-                newUserPanel.add(newLine(), BorderLayout.CENTER);
+                newUserPanel.add(spacer, "span, grow");
                 newUserPanel.add(message);
                 mainFrame.setContentPane(newUserPanel);
                 mainFrame.invalidate();
@@ -399,7 +426,7 @@ public class Main extends JApplet{
     public void createLoginUserPanel() {
         loginUserPanel = new JPanel();
         loginUserPanel.add(backButton);
-        loginUserPanel.add(newLine(), BorderLayout.CENTER);
+        loginUserPanel.add(spacer, "span, grow");
         JLabel userNameLabel = new JLabel("User name: ", JLabel.RIGHT);
         JLabel passwordLabel = new JLabel("Password: ", JLabel.RIGHT);
         JLabel message = new JLabel("", JLabel.CENTER);
@@ -421,7 +448,7 @@ public class Main extends JApplet{
                 if(validation != null) {
                     message.setText(validation);
                     createLoginUserPanel();
-                    loginUserPanel.add(newLine(), BorderLayout.CENTER);
+                    loginUserPanel.add(spacer, "span, grow");
                     loginUserPanel.add(message);
                     mainFrame.setContentPane(loginUserPanel);
                     mainFrame.invalidate();
@@ -446,7 +473,7 @@ public class Main extends JApplet{
     public void initFrame() {
         mainFrame = new JFrame("Rucha Project");
         mainFrame.setVisible(true);
-        mainFrame.setSize(800,600);
+        mainFrame.setSize(600,400);
         mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         initPanelsAndButtons();
         mainFrame.add(bookTicketPanel);
