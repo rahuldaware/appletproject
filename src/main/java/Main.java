@@ -5,6 +5,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 
 public class Main extends JApplet{
@@ -16,8 +18,8 @@ public class Main extends JApplet{
     private JPanel loginUserPanel;
     private JPanel activityPanel;
     private JPanel bookTicketPanel;
+    private JPanel buyTicketPanel;
     private JPanel cancelTicketPanel;
-    private JPanel viewHistoryPanel;
 
     private JButton backButton;
     private JButton newUserButton;
@@ -85,7 +87,7 @@ public class Main extends JApplet{
         newUserButton.addActionListener(newUserButtonActionListener());
         loginUserButton.addActionListener(loginUserButtonActionListener());
 
-        createHomePanel();
+        createBookTicketPanel();
     }
 
     public void createHomePanel() {
@@ -207,15 +209,62 @@ public class Main extends JApplet{
         bookTicketPanel.add(newLine());
         bookTicketPanel.add(newLine());
 
+        JTextField message = new JTextField("");
+        message.setForeground(Color.RED);
+
         JButton submitButton = new JButton("Submit");
         submitButton.setBackground(Color.GREEN);
         submitButton.setHorizontalAlignment(SwingConstants.CENTER);
+        submitButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                String departDate = departDateField.getText();
+                String returnDate = returnDateField.getText();
+                String validation = dateValidator(departDate, returnDate);
+                if(sourceListComboBox.getSelectedIndex() == destinationListComboBox.getSelectedIndex()) {
+                    validation = "Source and Destination airports cannot be same";
+                }
+                if(!businessRadioButton.isSelected() && !economyRadioButton.isSelected()) {
+                    validation = "Class not selected";
+                }
+                if(validation != null) {
+                    System.out.println(validation);
+                    message.setText(validation);
+                    createBookTicketPanel();
+                    bookTicketPanel.add(message);
+                    mainFrame.setContentPane(bookTicketPanel);
+                    mainFrame.invalidate();
+                    mainFrame.validate();
+                    return;
+                } else {
+                    System.out.println("Form filled successfully");
+                }
+
+            }
+        });
         bookTicketPanel.add(submitButton);
 
         mainFrame.add(bookTicketPanel);
         mainFrame.setVisible(true);
+
+
     }
 
+    public String dateValidator(String departDate, String returnDate) {
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        LocalDate departLocalDate, returnLocalDate;
+        try{
+            departLocalDate = LocalDate.parse(departDate, dtf);
+            returnLocalDate = LocalDate.parse(returnDate, dtf);
+        } catch (Exception e) {
+            return "Date is not in correct format";
+        }
+        if(returnLocalDate.isBefore(departLocalDate)) {
+            return "Return Date is before Depart Date";
+        }
+        return null;
+    }
     public void createActivityPanel() {
         activityPanel = new JPanel();
         activityPanel.add(backButton);
@@ -366,9 +415,6 @@ public class Main extends JApplet{
         loginUserPanel.add(passwordLabel);
         loginUserPanel.add(password);
         loginUserPanel.add(loginButton);
-
-
-
     }
 
     public void initFrame() {
@@ -377,8 +423,7 @@ public class Main extends JApplet{
         mainFrame.setSize(800,600);
         mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         initPanelsAndButtons();
-        //createHomePanel();
-        mainFrame.add(homePanel);
+        mainFrame.add(bookTicketPanel);
     }
 
     public static void main(String[] args) {
