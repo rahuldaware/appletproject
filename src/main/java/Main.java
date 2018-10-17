@@ -218,11 +218,13 @@ public class Main extends JApplet{
         submitButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-
+                String source = airports[sourceListComboBox.getSelectedIndex()];
+                String destination = airports[destinationListComboBox.getSelectedIndex()];
+                String passengerCount = passengers[passengerListComboBox.getSelectedIndex()];
                 String departDate = departDateField.getText();
                 String returnDate = returnDateField.getText();
                 String validation = dateValidator(departDate, returnDate);
-                if(sourceListComboBox.getSelectedIndex() == destinationListComboBox.getSelectedIndex()) {
+                if(source.equals(destination)) {
                     validation = "Source and Destination airports cannot be same";
                 }
                 if(!businessRadioButton.isSelected() && !economyRadioButton.isSelected()) {
@@ -239,6 +241,10 @@ public class Main extends JApplet{
                     return;
                 } else {
                     System.out.println("Form filled successfully");
+                    createBuyTicketPanel(departDate, returnDate, source, destination, Integer.parseInt(passengerCount));
+                    mainFrame.setContentPane(buyTicketPanel);
+                    mainFrame.invalidate();
+                    mainFrame.validate();
                 }
 
             }
@@ -249,6 +255,23 @@ public class Main extends JApplet{
         mainFrame.setVisible(true);
 
 
+    }
+
+    public void createBuyTicketPanel(String departDate, String returnDate, String source, String destination, int passengerCount) {
+        buyTicketPanel = new JPanel();
+        buyTicketPanel.add(backButton);
+
+        JLabel departDateLabel = new JLabel(departDate);
+        JLabel returnDateLabel = new JLabel(returnDate);
+        JLabel sourceLabel = new JLabel(source);
+        JLabel destinationLabel = new JLabel(destination);
+        JLabel passengerCountLabel = new JLabel(String.valueOf(passengerCount));
+
+        buyTicketPanel.add(departDateLabel);
+        buyTicketPanel.add(returnDateLabel);
+        buyTicketPanel.add(sourceLabel);
+        buyTicketPanel.add(destinationLabel);
+        buyTicketPanel.add(passengerCountLabel);
     }
 
     public String dateValidator(String departDate, String returnDate) {
