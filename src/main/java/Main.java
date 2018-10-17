@@ -260,6 +260,9 @@ public class Main extends JApplet{
         } catch (Exception e) {
             return "Date is not in correct format";
         }
+        if(departLocalDate.isBefore(LocalDate.now()) || returnLocalDate.isBefore(LocalDate.now())) {
+            return "Departure and return date cannot be in past";
+        }
         if(returnLocalDate.isBefore(departLocalDate)) {
             return "Return Date is before Depart Date";
         }
