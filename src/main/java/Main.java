@@ -8,6 +8,9 @@ import java.awt.event.ActionListener;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+
 import net.miginfocom.swing.MigLayout;
 
 public class Main extends JApplet{
@@ -31,11 +34,16 @@ public class Main extends JApplet{
     private JTextField username;
     private JPasswordField password;
 
-    private String[] airports =
-            {"Mumbai", "Delhi", "Hyderabad", "Kolkata", "Chennai", "Bengaluru", "Ahmedabad", "Pune", "Jaipur", "Lucknow"};
+    private ArrayList<String> airports = new ArrayList<>();
+
+
 
     private String[] passengers = {"1","2","3","4","5","6"};
+
+    private int[] fare = {2000, 1800, 3000, 2200, 2500, 2600, 2700, 2300, 1900, 1600};
     public Main() {
+        String[] cities = {"Mumbai", "Delhi", "Hyderabad", "Kolkata", "Chennai", "Bengaluru", "Ahmedabad", "Pune", "Jaipur", "Lucknow"};
+        airports.addAll(Arrays.asList(cities));
         initFrame();
     }
 
@@ -220,8 +228,8 @@ public class Main extends JApplet{
         submitButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                String source = airports[sourceListComboBox.getSelectedIndex()];
-                String destination = airports[destinationListComboBox.getSelectedIndex()];
+                String source = airports.get(sourceListComboBox.getSelectedIndex());
+                String destination = airports.get(destinationListComboBox.getSelectedIndex());
                 String passengerCount = passengers[passengerListComboBox.getSelectedIndex()];
                 String departDate = departDateField.getText();
                 String returnDate = returnDateField.getText();
@@ -243,7 +251,8 @@ public class Main extends JApplet{
                     return;
                 } else {
                     System.out.println("Form filled successfully");
-                    createBuyTicketPanel(departDate, returnDate, source, destination, Integer.parseInt(passengerCount));
+                    String flyClass = businessRadioButton.isSelected() ? "Business" : "Economy";
+                    createBuyTicketPanel(departDate, returnDate, source, destination, Integer.parseInt(passengerCount), flyClass);
                     mainFrame.setContentPane(buyTicketPanel);
                     mainFrame.invalidate();
                     mainFrame.validate();
@@ -259,7 +268,7 @@ public class Main extends JApplet{
 
     }
 
-    public void createBuyTicketPanel(String departDate, String returnDate, String source, String destination, int passengerCount) {
+    public void createBuyTicketPanel(String departDate, String returnDate, String source, String destination, int passengerCount, String flyClass) {
         buyTicketPanel = new JPanel();
         buyTicketPanel.setLayout(new MigLayout());
         buyTicketPanel.add(backButton, "wrap");
@@ -286,10 +295,12 @@ public class Main extends JApplet{
             passengerGender.add(gender);
         }
 
+
         buyTicketPanel.add(new JLabel("Depart On: " + departDateLabel.getText()));
         buyTicketPanel.add(new JLabel("Return On: " + returnDateLabel.getText()),"wrap");
         buyTicketPanel.add(new JLabel("From: " + sourceLabel.getText()));
-        buyTicketPanel.add(new JLabel("To: " + destinationLabel.getText()), "wrap");
+        buyTicketPanel.add(new JLabel("To: " + destinationLabel.getText()));
+        buyTicketPanel.add(new JLabel("Class: " + flyClass), "wrap");
         buyTicketPanel.add(new JLabel("Passenger Details"), "wrap");
         for(int i=0; i<passengerCount;i++) {
             buyTicketPanel.add(new JLabel("First Name: ", JLabel.LEFT));
@@ -308,6 +319,13 @@ public class Main extends JApplet{
         }
 
         JLabel paymentDetails = new JLabel("Payment Details");
+        int baseFare = (fare[airports.indexOf(source)] + fare[airports.indexOf(destination)]) * passengerCount;
+        float taxRate = flyClass.equals("Business") ? Float.parseFloat("12") : Float.parseFloat("5");
+        float tax = (float) (taxRate * baseFare/100);
+        float totalFare = (float) baseFare + tax;
+        buyTicketPanel.add(new JLabel("Total Base Fare: " + baseFare));
+        buyTicketPanel.add(new JLabel("GST ("+taxRate+"%): "  + tax));
+        buyTicketPanel.add(new JLabel("Total Fare: " + totalFare), "wrap");
 
         JLabel creditCardLabel = new JLabel("Credit Card No (16 digits): ");
         JTextField creditCardNo = new JTextField(10);
@@ -327,6 +345,13 @@ public class Main extends JApplet{
 
         JButton submitButton = new JButton("Buy Tickets");
         buyTicketPanel.add(submitButton);
+
+        submitButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+            }
+        });
     }
 
     public String dateValidator(String departDate, String returnDate) {
