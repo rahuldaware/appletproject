@@ -32,12 +32,10 @@ public class Main extends JApplet{
     private JPanel cancelTicketPanel;
 
     private JButton backButton;
+    private JButton secondBackButton;
     private JButton newUserButton;
     private JButton loginUserButton;
     private static DBService dbService;
-
-    private JTextField username;
-    private JPasswordField password;
 
     private ArrayList<String> airports = new ArrayList<>();
 
@@ -59,6 +57,20 @@ public class Main extends JApplet{
                 System.out.println("Back Button Action Clicked");
                 createHomePanel();
                 mainFrame.setContentPane(homePanel);
+                mainFrame.invalidate();
+                mainFrame.validate();
+
+            }
+        };
+    }
+
+    private ActionListener secondBackButtonActionListener() {
+        return new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                System.out.println("Second Back Button Action Clicked");
+                createActivityPanel();
+                mainFrame.setContentPane(activityPanel);
                 mainFrame.invalidate();
                 mainFrame.validate();
 
@@ -132,6 +144,7 @@ public class Main extends JApplet{
     public void createBookTicketPanel() {
         bookTicketPanel = new JPanel();
         bookTicketPanel.setLayout(new MigLayout());
+        bookTicketPanel.add(secondBackButton, "wrap");
         JLabel fromLabel = new JLabel("From: ");
         JLabel toLabel = new JLabel("To: ");
 
@@ -257,7 +270,7 @@ public class Main extends JApplet{
     public void createBuyTicketPanel(String departDate, String returnDate, String source, String destination, int passengerCount, String flyClass) {
         buyTicketPanel = new JPanel();
         buyTicketPanel.setLayout(new MigLayout());
-        buyTicketPanel.add(backButton, "wrap");
+        buyTicketPanel.add(secondBackButton, "wrap");
 
         JLabel departDateLabel = new JLabel(departDate);
         JLabel returnDateLabel = new JLabel(returnDate);
@@ -513,7 +526,7 @@ public class Main extends JApplet{
     public void createCancelTicketPanel() {
         cancelTicketPanel = new JPanel();
         cancelTicketPanel.setLayout(new MigLayout());
-        cancelTicketPanel.add(backButton, "wrap");
+        cancelTicketPanel.add(secondBackButton, "wrap");
         JLabel bookingIdLabel = new JLabel("Enter Booking ID: ");
         JTextField bookingIdField = new JTextField(20);
         cancelTicketPanel.add(bookingIdLabel);
@@ -555,7 +568,7 @@ public class Main extends JApplet{
     public void createViewHistoryPanel() {
         viewHistoryPanel = new JPanel();
         viewHistoryPanel.setLayout(new MigLayout());
-        viewHistoryPanel.add(backButton, "wrap");
+        viewHistoryPanel.add(secondBackButton, "wrap");
         JLabel bookingIdLabel = new JLabel("Enter Booking ID: ");
         JTextField bookingIdField = new JTextField(20);
         viewHistoryPanel.add(bookingIdLabel);
@@ -699,13 +712,14 @@ public class Main extends JApplet{
 
     public void initPanelsAndButtons() {
         backButton = new JButton("Back");
+        secondBackButton = new JButton("Back");
         newUserButton = new JButton("New User");
         loginUserButton = new JButton("Login");
 
         backButton.addActionListener(backButtonActionListener());
         newUserButton.addActionListener(newUserButtonActionListener());
         loginUserButton.addActionListener(loginUserButtonActionListener());
-
+        secondBackButton.addActionListener(secondBackButtonActionListener());
         createHomePanel();
     }
 
