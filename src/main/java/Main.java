@@ -6,10 +6,12 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.UUID;
 
 import net.miginfocom.swing.MigLayout;
 
@@ -24,6 +26,7 @@ public class Main extends JApplet{
     private JPanel activityPanel;
     private JPanel bookTicketPanel;
     private JPanel buyTicketPanel;
+    private JPanel confirmationPanel;
     private JPanel cancelTicketPanel;
 
     private JButton backButton;
@@ -88,20 +91,9 @@ public class Main extends JApplet{
         };
     }
 
-    public void initPanelsAndButtons() {
-        backButton = new JButton("Back");
-        newUserButton = new JButton("New User");
-        loginUserButton = new JButton("Login");
-
-        backButton.addActionListener(backButtonActionListener());
-        newUserButton.addActionListener(newUserButtonActionListener());
-        loginUserButton.addActionListener(loginUserButtonActionListener());
-
-        createBookTicketPanel();
-    }
-
     public void createHomePanel() {
         homePanel = new JPanel();
+        // homePanel.setLayout(new MigLayout());
         homePanel.add(backButton);
         homePanel.add(newUserButton);
         homePanel.add(loginUserButton);
@@ -319,8 +311,10 @@ public class Main extends JApplet{
         }
 
         JLabel paymentDetails = new JLabel("Payment Details");
-        int baseFare = (fare[airports.indexOf(source)] + fare[airports.indexOf(destination)]) * passengerCount;
+        float baseFare = (fare[airports.indexOf(source)] + fare[airports.indexOf(destination)]) * passengerCount;
         float taxRate = flyClass.equals("Business") ? Float.parseFloat("12") : Float.parseFloat("5");
+        float multiplier = flyClass.equals("Business") ? Float.parseFloat("4") : Float.parseFloat("1");
+        baseFare = multiplier * baseFare;
         float tax = (float) (taxRate * baseFare/100);
         float totalFare = (float) baseFare + tax;
         buyTicketPanel.add(new JLabel("Total Base Fare: " + baseFare));
@@ -345,13 +339,95 @@ public class Main extends JApplet{
 
         JButton submitButton = new JButton("Buy Tickets");
         buyTicketPanel.add(submitButton);
-
+        JLabel message = new JLabel();
+        message.setForeground(Color.RED);
         submitButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-
+                String msg = genderValidation(passengerGender);
+                if(msg != null) {
+                    message.setText(msg);
+                    createBuyTicketPanel(departDate, returnDate, source, destination, passengerCount, flyClass);
+                    buyTicketPanel.add(message);
+                    mainFrame.setContentPane(buyTicketPanel);
+                    mainFrame.invalidate();
+                    mainFrame.validate();
+                    return;
+                }
+                msg = creditCardValidation(creditCardNo, creditCardExpiry, creditCardCvc);
+                if(msg != null) {
+                    message.setText(msg);
+                    createBuyTicketPanel(departDate, returnDate, source, destination, passengerCount, flyClass);
+                    buyTicketPanel.add(message);
+                    mainFrame.setContentPane(buyTicketPanel);
+                    mainFrame.invalidate();
+                    mainFrame.validate();
+                    return;
+                }
+                // TODO: Everything is good. Transaction is ready to be processed
+                ArrayList<String> firstNames = new ArrayList<>();
+                ArrayList<String> lastNames = new ArrayList<>();
+                ArrayList<String> ages = new ArrayList<>();
+                ArrayList<String> genders = new ArrayList<>();
+                for(int i = 0;i<passengerFirstName.size(); i++) {
+                    firstNames.add(passengerFirstName.get(i).getText().trim());
+                    lastNames.add(passengerLastName.get(i).getText().trim());
+                    ages.add(passengerAge.get(i).getText().trim());
+                    genders.add(passengerGender.get(i).getText().trim());
+                }
+                String transactionID = UUID.randomUUID().toString();
+                System.out.println("Transaction ID: " + transactionID);
+                createConfirmationPanel(transactionID, firstNames, lastNames);
             }
         });
+    }
+
+    public void createConfirmationPanel(String transactionID, ArrayList<String> firstNames, ArrayList<String> lastNames) {
+        confirmationPanel = new JPanel();
+        confirmationPanel.setLayout(new MigLayout());
+        confirmationPanel.add(backButton, "wrap");
+        JLabel confirmationLabel = new JLabel("Your booking is confirmed. Booking ID: " + transactionID);
+        confirmationPanel.add(confirmationLabel, "wrap");
+        confirmationPanel.add(spacer, "wrap");
+        confirmationPanel.add(new JLabel("Confirmed Passengers:"), "wrap");
+        for(int i=0; i<firstNames.size();i++) {
+            confirmationPanel.add(new JLabel(firstNames.get(i) + " " + lastNames.get(i)), "wrap");
+        }
+        mainFrame.setContentPane(confirmationPanel);
+        mainFrame.invalidate();
+        mainFrame.validate();
+    }
+
+    public String creditCardValidation(JTextField creditCardNo, JTextField creditCardExpiry, JTextField creditCardCvc) {
+        if(creditCardNo.getText().trim().length() != 16) {
+            return "Credit Card number should be exact 16 digits";
+        }
+        if(creditCardCvc.getText().trim().length() != 3) {
+            return "CVC number should be exact 3 digits";
+        }
+        return expiryDateValidator(creditCardExpiry.getText().trim());
+    }
+
+    public String expiryDateValidator(String expiryDate) {
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("MM/yyyy");
+        YearMonth date;
+        try {
+            date = YearMonth.parse(expiryDate, dtf);
+        } catch(Exception e) {
+            return "Expiry Date should be of format MM/YYYY";
+        }
+        if(date.isBefore(YearMonth.now())) {
+            return "Credit card expired";
+        }
+        return null;
+    }
+    public String genderValidation(ArrayList<JTextField> genderList) {
+        for(JTextField gender: genderList) {
+            if(!(gender.getText().trim().equals("M") || gender.getText().trim().equals("F"))) {
+                return "Gender value needs to be M or F";
+            }
+        }
+        return null;
     }
 
     public String dateValidator(String departDate, String returnDate) {
@@ -373,6 +449,7 @@ public class Main extends JApplet{
     }
     public void createActivityPanel() {
         activityPanel = new JPanel();
+        activityPanel.setLayout(new MigLayout());
         activityPanel.add(backButton);
 
         JRadioButton bookTicket = new JRadioButton("Book Ticket");
@@ -424,6 +501,7 @@ public class Main extends JApplet{
 
     public void createNewUserPanel() {
         newUserPanel = new JPanel();
+        newUserPanel.setLayout(new MigLayout());
         newUserPanel.add(backButton);
         newUserPanel.add(spacer, "span, grow");
         JLabel userNameLabel = new JLabel("Username: ", JLabel.CENTER);
@@ -478,6 +556,7 @@ public class Main extends JApplet{
 
     public void createLoginUserPanel() {
         loginUserPanel = new JPanel();
+        loginUserPanel.setLayout(new MigLayout());
         loginUserPanel.add(backButton);
         loginUserPanel.add(spacer, "span, grow");
         JLabel userNameLabel = new JLabel("User name: ", JLabel.RIGHT);
@@ -489,7 +568,6 @@ public class Main extends JApplet{
         password.setEchoChar('*');
 
         JButton loginButton = new JButton("Log In");
-        loginButton.setBackground(Color.GREEN);
 
         loginButton.addActionListener(new ActionListener() {
             @Override
@@ -521,6 +599,18 @@ public class Main extends JApplet{
         loginUserPanel.add(passwordLabel);
         loginUserPanel.add(password);
         loginUserPanel.add(loginButton);
+    }
+
+    public void initPanelsAndButtons() {
+        backButton = new JButton("Back");
+        newUserButton = new JButton("New User");
+        loginUserButton = new JButton("Login");
+
+        backButton.addActionListener(backButtonActionListener());
+        newUserButton.addActionListener(newUserButtonActionListener());
+        loginUserButton.addActionListener(loginUserButtonActionListener());
+
+        createBookTicketPanel();
     }
 
     public void initFrame() {
