@@ -1,4 +1,6 @@
 import database.DBService;
+import model.BookingModel;
+import model.TransactionModel;
 import validation.UsernameValidation;
 
 import javax.swing.*;
@@ -10,7 +12,6 @@ import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.UUID;
 
 import net.miginfocom.swing.MigLayout;
@@ -27,6 +28,7 @@ public class Main extends JApplet{
     private JPanel bookTicketPanel;
     private JPanel buyTicketPanel;
     private JPanel confirmationPanel;
+    private JPanel viewHistoryPanel;
     private JPanel cancelTicketPanel;
 
     private JButton backButton;
@@ -377,7 +379,18 @@ public class Main extends JApplet{
                 }
                 String transactionID = UUID.randomUUID().toString();
                 System.out.println("Transaction ID: " + transactionID);
-                createConfirmationPanel(transactionID, firstNames, lastNames);
+                if(dbService.bookTickets(transactionID, source, destination) &&
+                        dbService.doTransaction(transactionID, firstNames, lastNames, ages, genders, creditCardNo.getText().trim(), totalFare)) {
+                    createConfirmationPanel(transactionID, firstNames, lastNames);
+                } else {
+                    message.setText("Booking not confirmed. Please try again...");
+                    createBuyTicketPanel(departDate, returnDate, source, destination, passengerCount, flyClass);
+                    buyTicketPanel.add(message);
+                    mainFrame.setContentPane(buyTicketPanel);
+                    mainFrame.invalidate();
+                    mainFrame.validate();
+                    return;
+                }
             }
         });
     }
@@ -488,6 +501,7 @@ public class Main extends JApplet{
                     System.out.println("Cancel Ticket Selected");
                 }
                 else if(viewHistory.isSelected()){
+
                     System.out.println("View History Selected");
                 } else {
                     createActivityPanel();
@@ -499,6 +513,49 @@ public class Main extends JApplet{
         });
     }
 
+    public void createViewHistoryPanel() {
+        viewHistoryPanel = new JPanel();
+        viewHistoryPanel.setLayout(new MigLayout());
+        viewHistoryPanel.add(backButton, "wrap");
+        JLabel bookingIdLabel = new JLabel("Enter Booking ID: ");
+        JTextField bookingIdField = new JTextField(20);
+        viewHistoryPanel.add(bookingIdLabel);
+        viewHistoryPanel.add(bookingIdField, "wrap");
+
+        JButton submitButton = new JButton("Submit");
+        submitButton.setBackground(Color.GREEN);
+        viewHistoryPanel.add(submitButton, "wrap");
+        submitButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                BookingModel bookingModel = dbService.getBookingModel(bookingIdField.getText().trim());
+                TransactionModel tm = dbService.getTransactionModel(bookingIdField.getText().trim());
+                createViewHistoryPanel();
+                viewHistoryPanel.add(spacer, "wrap");
+                if(bookingModel != null && tm != null) {
+                    viewHistoryPanel.add(new JLabel("Transaction ID: " + bookingModel.getBookingId()), "wrap");
+                    viewHistoryPanel.add(new JLabel("Source: " + bookingModel.getSource()));
+                    viewHistoryPanel.add(new JLabel("Destination: " + bookingModel.getDestination()), "wrap");
+                    viewHistoryPanel.add(new JLabel("Passenger Details: "), "wrap");
+                    viewHistoryPanel.add(spacer, "wrap");
+                    for(int i = 0; i< tm.getFirstName().size(); i++) {
+                        viewHistoryPanel.add(new JLabel(tm.getFirstName().get(i) + " " + tm.getLastName().get(i)), "wrap");
+                        viewHistoryPanel.add(spacer, "wrap");
+                    }
+                } else {
+                    JLabel msg = new JLabel("Transaction ID not found");
+                    msg.setForeground(Color.RED);
+                    viewHistoryPanel.add(msg);
+                }
+                mainFrame.setContentPane(viewHistoryPanel);
+                mainFrame.invalidate();
+                mainFrame.validate();
+            }
+        });
+        mainFrame.setContentPane(viewHistoryPanel);
+        mainFrame.invalidate();
+        mainFrame.validate();
+    }
     public void createNewUserPanel() {
         newUserPanel = new JPanel();
         newUserPanel.setLayout(new MigLayout());
@@ -610,7 +667,7 @@ public class Main extends JApplet{
         newUserButton.addActionListener(newUserButtonActionListener());
         loginUserButton.addActionListener(loginUserButtonActionListener());
 
-        createBookTicketPanel();
+        createViewHistoryPanel();
     }
 
     public void initFrame() {
@@ -619,7 +676,7 @@ public class Main extends JApplet{
         mainFrame.setSize(800,600);
         mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         initPanelsAndButtons();
-        mainFrame.add(bookTicketPanel);
+        //mainFrame.add(viewHistoryPanel);
     }
 
     public static void main(String[] args) {

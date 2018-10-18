@@ -12,6 +12,11 @@ public class MariaDBConnector {
     static final String DB_NAME = "reservations";
 
     static final String CREATE_USERS_TABLE = "CREATE TABLE IF NOT EXISTS users(username VARCHAR(20), password VARCHAR(20), signup_date DATE, PRIMARY KEY(username))";
+    static final String CREATE_TRANSACTION_TABLE = "CREATE TABLE IF NOT EXISTS transaction(booking_id VARCHAR(36)," +
+                                            " first_name VARCHAR(20), last_name VARCHAR(20)," +
+                                            " age VARCHAR(3), gender char, cc_no VARCHAR(16), price VARCHAR(10), PRIMARY KEY(booking_id, first_name, last_name))";
+    static final String CREATE_BOOKING_TABLE = "CREATE TABLE IF NOT EXISTS booking(booking_id VARCHAR(36)," +
+                                                " source VARCHAR(20), destination VARCHAR(20))";
     static final String USER = "rdaware";
     static final String PASS = "password";
 
@@ -29,6 +34,8 @@ public class MariaDBConnector {
     public void createTables() {
         try {
             statement.executeQuery(CREATE_USERS_TABLE);
+            statement.executeQuery(CREATE_BOOKING_TABLE);
+            statement.executeQuery(CREATE_TRANSACTION_TABLE);
             System.out.println("Users Table verified");
         } catch (SQLException e) {
             e.printStackTrace();
