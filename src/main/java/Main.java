@@ -211,14 +211,6 @@ public class Main extends JApplet{
         submitButton.setBackground(Color.GREEN);
         submitButton.setHorizontalAlignment(SwingConstants.CENTER);
 
-        // Delete Later
-        destinationListComboBox.setSelectedIndex(2);
-        departDateField.setText("20/10/2018");
-        returnDateField.setText("22/10/2018");
-        passengerListComboBox.setSelectedIndex(3);
-        businessRadioButton.setSelected(true);
-        //Delete until here
-
         submitButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -718,7 +710,7 @@ public class Main extends JApplet{
     }
 
     public void initFrame() {
-        mainFrame = new JFrame("Rucha Project");
+        mainFrame = new JFrame("Airline Reservation System");
         mainFrame.setVisible(true);
         mainFrame.setSize(800,600);
         mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
