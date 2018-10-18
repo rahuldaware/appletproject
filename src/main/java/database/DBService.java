@@ -128,4 +128,27 @@ public class DBService {
         }
         return null;
     }
+
+    public Boolean isBookingIDValid(String bookingId) {
+        String query = "SELECT booking_id FROM booking" + " WHERE  booking_id = '" + bookingId + "'";
+        ResultSet resultSet = null;
+        try {
+            resultSet = statement.executeQuery(query);
+            return resultSet.next();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return true;
+    }
+
+    public void cancelTicket(String bookingId) {
+        String bookingQuery = "DELETE FROM booking WHERE booking_id = '" + bookingId + "'";
+        String transactionQuery = "DELETE FROM transaction WHERE booking_id = '" + bookingId + "'";
+        try {
+            statement.executeQuery(bookingQuery);
+            statement.executeQuery(transactionQuery);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
 }

@@ -498,11 +498,16 @@ public class Main extends JApplet{
                     return;
                 }
                 else if(cancelTicket.isSelected()) {
-                    System.out.println("Cancel Ticket Selected");
+                    createCancelTicketPanel();
+                    mainFrame.setContentPane(cancelTicketPanel);
+                    mainFrame.invalidate();
+                    mainFrame.validate();
                 }
                 else if(viewHistory.isSelected()){
-
-                    System.out.println("View History Selected");
+                    createViewHistoryPanel();
+                    mainFrame.setContentPane(viewHistoryPanel);
+                    mainFrame.invalidate();
+                    mainFrame.validate();
                 } else {
                     createActivityPanel();
                     mainFrame.setContentPane(activityPanel);
@@ -511,6 +516,48 @@ public class Main extends JApplet{
                 }
             }
         });
+    }
+
+    public void createCancelTicketPanel() {
+        cancelTicketPanel = new JPanel();
+        cancelTicketPanel.setLayout(new MigLayout());
+        cancelTicketPanel.add(backButton, "wrap");
+        JLabel bookingIdLabel = new JLabel("Enter Booking ID: ");
+        JTextField bookingIdField = new JTextField(20);
+        cancelTicketPanel.add(bookingIdLabel);
+        cancelTicketPanel.add(bookingIdField, "wrap");
+        JButton cancelButton = new JButton("Cancel Ticket");
+        cancelButton.setBackground(Color.RED);
+        cancelTicketPanel.add(cancelButton, "wrap");
+        JLabel message = new JLabel("");
+        cancelButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if(!dbService.isBookingIDValid(bookingIdField.getText().trim())) {
+                    createCancelTicketPanel();
+                    message.setText("Booking ID not found");
+                    message.setForeground(Color.RED);
+                    cancelTicketPanel.add(spacer, "wrap");
+                    cancelTicketPanel.add(message, "wrap");
+                    mainFrame.setContentPane(cancelTicketPanel);
+                    mainFrame.invalidate();
+                    mainFrame.validate();
+                    return;
+                } else {
+                    dbService.cancelTicket(bookingIdField.getText().trim());
+                    message.setText("Ticket cancelled successfully!!! Refund is processed");
+                    message.setForeground(Color.GREEN);
+                    cancelTicketPanel.add(spacer, "wrap");
+                    cancelTicketPanel.add(message, "wrap");
+                    mainFrame.setContentPane(cancelTicketPanel);
+                    mainFrame.invalidate();
+                    mainFrame.validate();
+                }
+            }
+        });
+        mainFrame.setContentPane(cancelTicketPanel);
+        mainFrame.invalidate();
+        mainFrame.validate();
     }
 
     public void createViewHistoryPanel() {
@@ -667,7 +714,7 @@ public class Main extends JApplet{
         newUserButton.addActionListener(newUserButtonActionListener());
         loginUserButton.addActionListener(loginUserButtonActionListener());
 
-        createViewHistoryPanel();
+        createHomePanel();
     }
 
     public void initFrame() {
@@ -676,7 +723,7 @@ public class Main extends JApplet{
         mainFrame.setSize(800,600);
         mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         initPanelsAndButtons();
-        //mainFrame.add(viewHistoryPanel);
+        mainFrame.add(homePanel);
     }
 
     public static void main(String[] args) {
